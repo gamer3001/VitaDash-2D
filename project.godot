@@ -12,6 +12,7 @@ config_version=4
 
 config/name="VitaDasher"
 run/main_scene="res://MainMenu.tscn"
+config/icon="res://icon.png"
 
 [autoload]
 
@@ -38,3 +39,10 @@ dash={
 , Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":10,"pressure":0.0,"pressed":false,"script":null)
  ]
 }
+
+[rendering]
+
+quality/driver/driver_name="GLES2"
+vram_compression/import_etc=true
+2d/batching/options/use_batching=false
+2d/batching/options/use_batching_vulkan=false
