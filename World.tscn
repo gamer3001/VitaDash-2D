@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://World.gd" type="Script" id=1]
 [ext_resource path="res://Player.tscn" type="PackedScene" id=2]
+[ext_resource path="res://PauseMenu.tscn" type="PackedScene" id=3]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 480, 20 )
@@ -88,3 +89,5 @@ margin_top = 250.0
 margin_right = 560.0
 margin_bottom = 280.0
 text = "VICTORY!"
+
+[node name="PauseMenu" parent="." instance=ExtResource( 3 )]
