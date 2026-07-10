@@ -1,15 +1,21 @@
 extends KinematicBody2D
 
-export var gravity = 1000
+export var gravity = 1200
 export var speed = 400
 export var jump_force = -700
 export var dash_speed = 800
 export var dash_duration = 0.15
+export var wall_slide_gravity = 200
+export var wall_slide_acceleration = 2
+export var wall_jump_force = Vector2(500, -600)
 
 var velocity = Vector2.ZERO
 var can_dash = true
 var is_dashing = false
+var is_wall_sliding = false
 var last_dir = 1 
+var wall_slide_timer = 0.0
+var wall_jump_cooldown = 0.0
 
 onready var coyote_timer = $CoyoteTimer
 onready var jump_buffer_timer = $JumpBufferTimer
@@ -41,7 +47,32 @@ func _physics_process(delta):
 		return
 
 	velocity.x = move_input * speed
-	velocity.y += gravity * delta
+	
+	if wall_jump_cooldown > 0:
+		wall_jump_cooldown -= delta
+	
+	# Wall Slide Logic
+	if wall_jump_cooldown <= 0 and is_on_wall() and not is_on_floor() and move_input != 0:
+		is_wall_sliding = true
+		wall_slide_timer += delta
+		
+		if wall_slide_timer > 1.0:
+			velocity.y += wall_slide_gravity * (1 + (wall_slide_timer - 1.0) * wall_slide_acceleration) * delta
+		else:
+			velocity.y = 0
+			
+		# Wall Jump
+		if Input.is_action_just_pressed("ui_accept"):
+			# On utilise le dernier vecteur de mouvement ou la direction de slide pour déterminer le saut
+			var jump_dir = -last_dir # Inverse de la direction où on glissait
+			velocity = Vector2(jump_dir * wall_jump_force.x, wall_jump_force.y)
+			is_wall_sliding = false
+			wall_slide_timer = 0.0
+			wall_jump_cooldown = 0.2
+	else:
+		is_wall_sliding = false
+		wall_slide_timer = 0.0
+		velocity.y += gravity * delta
 	
 	if is_on_floor():
 		coyote_timer.start()

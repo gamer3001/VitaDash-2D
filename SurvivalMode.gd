@@ -7,6 +7,7 @@ var lava_speed = 50.0
 
 onready var player = $Player
 onready var lava = $Lava
+onready var sky_color = $BackgroundLayer/SkyColor
 onready var score_label = $UI/LabelScore
 onready var timer_label = $UI/LabelTimer
 onready var anim_label = $UI/LabelEpic
@@ -36,6 +37,11 @@ func update_ui():
 	timer_label.text = "Temps: %02d:%02d" % [int(time_elapsed / 60), int(fmod(time_elapsed, 60))]
 	var height = int(max(0, -player.position.y + 400))
 	score_label.text = "Hauteur: %d" % height
+	
+	# Transition du ciel vers l'espace
+	var progress = clamp(float(height) / 5000.0, 0.0, 1.0)
+	sky_color.color = Color(0.2, 0.5, 0.9).linear_interpolate(Color(0.0, 0.0, 0.05), progress)
+	$BackgroundLayer/StarsParticles.modulate.a = progress
 	
 	lava_speed = base_speed + (height / 1000) * 10
 	
