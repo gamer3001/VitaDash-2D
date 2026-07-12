@@ -1,5 +1,9 @@
 extends Node2D
 
+# Même distance que dans InfiniteMode pour que l'espace arrive au
+# même rythme dans les deux modes.
+const SKY_TRANSITION_HEIGHT = 15000.0
+
 var next_spawn_y = 400
 var started = false
 var base_speed = 50.0
@@ -8,6 +12,7 @@ var lava_speed = 50.0
 onready var player = $Player
 onready var lava = $Lava
 onready var sky_color = $BackgroundLayer/SkyColor
+onready var sky_gradient = SkyGradient.build_gradient()
 onready var score_label = $UI/LabelScore
 onready var timer_label = $UI/LabelTimer
 onready var anim_label = $UI/LabelEpic
@@ -38,10 +43,10 @@ func update_ui():
 	var height = int(max(0, -player.position.y + 400))
 	score_label.text = "Hauteur: %d" % height
 	
-	# Transition du ciel vers l'espace
-	var progress = clamp(float(height) / 5000.0, 0.0, 1.0)
-	sky_color.color = Color(0.2, 0.5, 0.9).linear_interpolate(Color(0.0, 0.0, 0.05), progress)
-	$BackgroundLayer/StarsParticles.modulate.a = progress
+	# Transition du ciel : jour -> coucher de soleil -> espace
+	var progress = clamp(float(height) / SKY_TRANSITION_HEIGHT, 0.0, 1.0)
+	sky_color.color = SkyGradient.get_sky_color(sky_gradient, progress)
+	$BackgroundLayer/StarsParticles.modulate.a = SkyGradient.get_stars_alpha(progress)
 	
 	lava_speed = base_speed + (height / 1000) * 10
 	

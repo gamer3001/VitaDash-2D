@@ -1,5 +1,10 @@
 extends Node2D
 
+# Hauteur (en pixels) à partir de laquelle le ciel a fini sa transition
+# complète (jour -> coucher de soleil -> espace). Avant, l'espace
+# arrivait dès 5000 ; on le repousse ici 3x plus loin.
+const SKY_TRANSITION_HEIGHT = 15000.0
+
 var next_spawn_y = 400
 var started = false
 
@@ -8,6 +13,7 @@ onready var camera = $Camera2D
 onready var score_label = $UI/LabelScore
 onready var timer_label = $UI/LabelTimer
 onready var sky_color = $BackgroundLayer/SkyColor
+onready var sky_gradient = SkyGradient.build_gradient()
 # stars_texture supprimé car le nœud n'existe pas
 
 var time_elapsed = 0.0
@@ -33,10 +39,10 @@ func update_ui():
 	var height = int(max(0, -player.position.y + 400))
 	score_label.text = "Hauteur: %d" % height
 	
-	# Transition du ciel vers l'espace
-	var progress = clamp(float(height) / 5000.0, 0.0, 1.0)
-	sky_color.color = Color(0.2, 0.5, 0.9).linear_interpolate(Color(0.0, 0.0, 0.05), progress)
-	$BackgroundLayer/StarsParticles.modulate.a = progress
+	# Transition du ciel : jour -> coucher de soleil -> espace
+	var progress = clamp(float(height) / SKY_TRANSITION_HEIGHT, 0.0, 1.0)
+	sky_color.color = SkyGradient.get_sky_color(sky_gradient, progress)
+	$BackgroundLayer/StarsParticles.modulate.a = SkyGradient.get_stars_alpha(progress)
 
 func spawn_chunk(vertical_offset = 0):
 	# Chance de générer un mur au lieu d'une plateforme
